@@ -1,0 +1,7 @@
+# Environnement
+.env
+.vscode/
+vendor/
+
+# Fichiers WordPress
+/wp-content/
