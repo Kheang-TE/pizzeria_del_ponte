@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapport d'Audit Sécurité - Pizza Manager Legacy</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #2d2d2d; background: #f5f5f5; padding: 20px; }
+        .container { max-width: 1500px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); overflow: hidden; }
+        header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; padding: 30px; }
+        header h1 { font-size: 1.8rem; font-weight: 600; margin-bottom: 8px; }
+        header h2 { font-size: 1.1rem; font-weight: 400; opacity: 0.9; margin-bottom: 16px; }
+        header .meta { display: flex; gap: 24px; flex-wrap: wrap; font-size: 0.85rem; opacity: 0.85; }
+        header .meta span { display: flex; align-items: center; gap: 6px; }
+        .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; padding: 24px; background: #f8f9fa; border-bottom: 1px solid #e9ecef; }
+        .stat-card { background: white; padding: 20px; border-radius: 8px; text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,0.06); border-left: 4px solid; transition: transform 0.2s, box-shadow 0.2s; }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .stat-card.critique { border-left-color: #dc3545; }
+        .stat-card.elevee { border-left-color: #fd7e14; }
+        .stat-card.moyenne { border-left-color: #ffc107; }
+        .stat-card.faible { border-left-color: #28a745; }
+        .stat-card .count { font-size: 2.2rem; font-weight: 700; line-height: 1; margin-bottom: 4px; }
+        .stat-card .label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: #6c757d; font-weight: 500; }
+        .controls { padding: 20px 24px; background: #f8f9fa; border-bottom: 1px solid #e9ecef; display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
+        .controls label { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 500; color: #495057; }
+        .controls select, .controls input { padding: 10px 14px; border: 1px solid #ced4da; border-radius: 6px; font-size: 0.85rem; background: white; transition: border-color 0.2s, box-shadow 0.2s; }
+        .controls select:focus, .controls input:focus { outline: none; border-color: #007bff; box-shadow: 0 0 0 3px rgba(0,123,255,0.15); }
+        .controls input[type="text"] { flex: 1; min-width: 250px; }
+        .controls .btn { padding: 10px 18px; border: none; border-radius: 6px; font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: background 0.2s, transform 0.1s; display: flex; align-items: center; gap: 6px; }
+        .controls .btn:active { transform: scale(0.98); }
+        .controls .btn-primary { background: #007bff; color: white; }
+        .controls .btn-primary:hover { background: #0069d9; }
+        .controls .btn-secondary { background: #6c757d; color: white; }
+        .controls .btn-secondary:hover { background: #5a6268; }
+        .controls .btn-success { background: #28a745; color: white; }
+        .controls .btn-success:hover { background: #218838; }
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; }
+        .badge.critique { background: #dc3545; color: white; }
+        .badge.elevee { background: #fd7e14; color: white; }
+        .badge.moyenne { background: #ffc107; color: #212529; }
+        .badge.faible { background: #28a745; color: white; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        thead { background: #1a1a2e; color: white; position: sticky; top: 0; z-index: 10; }
+        th { padding: 14px 16px; text-align: left; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #dee2e6; white-space: nowrap; }
+        th:first-child { border-top-left-radius: 8px; }
+        th:last-child { border-top-right-radius: 8px; }
+        td { padding: 14px 16px; border-bottom: 1px solid #e9ecef; vertical-align: top; }
+        tr { transition: background 0.15s; }
+        tr:hover { background: #fafafa; }
+        tr.critique td:first-child { border-left: 4px solid #dc3545; }
+        tr.elevee td:first-child { border-left: 4px solid #fd7e14; }
+        tr.moyenne td:first-child { border-left: 4px solid #ffc107; }
+        tr.faible td:first-child { border-left: 4px solid #28a745; }
+        .code { font-family: 'SF Mono', 'Monaco', 'Consolas', 'Liberation Mono', monospace; font-size: 0.78rem; background: #f1f3f5; padding: 2px 6px; border-radius: 4px; color: #495057; }
+        .code-block { font-family: 'SF Mono', 'Monaco', 'Consolas', 'Liberation Mono', monospace; font-size: 0.75rem; background: #1e1e1e; color: #d4d4d4; padding: 14px; border-radius: 6px; overflow-x: auto; margin: 10px 0; white-space: pre; line-height: 1.5; }
+        .expand-btn { cursor: pointer; background: none; border: none; color: #007bff; font-size: 0.8rem; font-weight: 500; padding: 6px 12px; border-radius: 4px; transition: background 0.2s; display: inline-flex; align-items: center; gap: 4px; }
+        .expand-btn:hover { background: rgba(0,123,255,0.1); text-decoration: none; }
+        .expand-btn:focus { outline: none; box-shadow: 0 0 0 3px rgba(0,123,255,0.25); }
+        .details-row { display: none; }
+        .details-row.show { display: table-row; animation: fadeIn 0.2s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+        .details-content { padding: 24px; background: #fafafa; border-top: 1px solid #e9ecef; }
+        .detail-section { margin-bottom: 20px; }
+        .detail-section:last-child { margin-bottom: 0; }
+        .detail-section h4 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: #6c757d; font-weight: 600; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+        .detail-section h4::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: currentColor; opacity: 0.3; }
+        .detail-section p { white-space: pre-wrap; word-break: break-word; }
+        .detail-meta { display: flex; gap: 24px; flex-wrap: wrap; font-size: 0.8rem; color: #495057; padding-top: 16px; border-top: 1px solid #e9ecef; }
+        .detail-meta span { display: flex; align-items: center; gap: 6px; font-weight: 500; }
+        .detail-meta strong { color: #212529; }
+        .cost-estimate { background: linear-gradient(135deg, #e7f3ff 0%, #d0e7ff 100%); border: 1px solid #b3d7ff; border-radius: 10px; padding: 28px; margin: 24px; }
+        .cost-estimate h3 { color: #0056b3; font-size: 1.1rem; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .cost-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
+        .cost-item { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.05); text-align: center; }
+        .cost-item .value { font-size: 1.8rem; font-weight: 700; color: #0056b3; line-height: 1; margin-bottom: 6px; }
+        .cost-item .label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.3px; color: #6c757d; font-weight: 500; }
+        .recommendations { background: #fff9e6; border: 1px solid #ffe58f; border-radius: 10px; padding: 24px; margin: 24px; }
+        .recommendations h3 { color: #856404; font-size: 1.1rem; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+        .recommendations ol { margin-left: 20px; }
+        .recommendations li { margin-bottom: 10px; padding-left: 8px; line-height: 1.7; }
+        .recommendations li::marker { color: #fd7e14; font-weight: bold; }
+        footer { background: #f8f9fa; border-top: 1px solid #e9ecef; padding: 20px 24px; font-size: 0.8rem; color: #6c757d; text-align: center; }
+        .hidden { display: none !important; }
+        @media (max-width: 900px) {
+            .container { border-radius: 0; }
+            table { display: block; overflow-x: auto; }
+            .controls { flex-direction: column; align-items: stretch; }
+            .controls input[type="text"] { min-width: 100%; }
+            .summary { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 600px) {
+            body { padding: 10px; }
+            header { padding: 20px; }
+            header h1 { font-size: 1.5rem; }
+            .summary { grid-template-columns: 1fr 1fr; gap: 12px; }
+            .stat-card { padding: 16px; }
+            .stat-card .count { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔒 Rapport d'Audit Sécurité</h1>
+            <h2>Pizza Manager Legacy v2.4.1</h2>
+            <div class="meta">
+                <span>📅 Date: <span id="audit-date"></span></span>
+                <span>📁 Fichier: pizza-manager-legacy.php</span>
+                <span>📊 Total: <span id="total-issues">0</span> problèmes</span>
+            </div>
+        </header>
+
+        <div class="summary" id="summary"></div>
+
+        <div class="controls">
+            <label>Criticité:
+                <select id="severity-filter" onchange="filterTable()">
+                    <option value="">Toutes</option>
+                    <option value="critique">Critique</option>
+                    <option value="elevee">Élevée</option>
+                    <option value="moyenne">Moyenne</option>
+                    <option value="faible">Faible</option>
+                </select>
+            </label>
+            <input type="text" id="search-filter" placeholder="Rechercher (ID, type, description, localisation...)" oninput="filterTable()">
+            <button class="btn btn-primary" onclick="exportCSV()">📥 Exporter CSV</button>
+            <button class="btn btn-secondary" onclick="exportPDF()">📄 Exporter PDF</button>
+            <button class="btn btn-success" onclick="expandAll()">🔽 Tout ouvrir</button>
+            <button class="btn" onclick="collapseAll()">🔼 Tout fermer</button>
+        </div>
+
+        <table id="issues-table">
+            <thead>
+                <tr>
+                    <th style="width: 70px;">Priorité</th>
+                    <th style="width: 110px;">Criticité</th>
+                    <th style="width: 100px;">CVSS</th>
+                    <th style="width: 200px;">Localisation</th>
+                    <th style="width: 220px;">Type / Nature</th>
+                    <th>Description / Impact</th>
+                    <th style="width: 90px;">Détails</th>
+                </tr>
+            </thead>
+            <tbody id="table-body"></tbody>
+        </table>
+
+        <div class="cost-estimate">
+            <h3>💰 Estimation des Coûts</h3>
+            <div class="cost-grid" id="cost-grid"></div>
+        </div>
+
+        <div class="recommendations">
+            <h3>📋 Recommandations Prioritaires</h3>
+            <ol id="recommendations-list"></ol>
+        </div>
+
+        <footer>
+            Généré automatiquement le <span id="gen-date"></span> — Audit de sécurité Pizza Manager Legacy
+        </footer>
+    </div>
+
+    <script>
+        // Données d'audit embarquées
+        const auditData = {
+            "plugin": "pizza-manager-legacy.php",
+            "version": "2.4.1",
+            "audit_date": "2026-09-18",
+            "total_issues": 16,
+            "summary": { "critique": 4, "elevee": 5, "moyenne": 4, "faible": 3 },
+            "issues": [
+                {
+                    "id": "PML-001",
+                    "severity": "critique",
+                    "cvss_score": 9.8,
+                    "cvss_severity": "Critique",
+                    "location": "function pml_restaurer_panier, line 351",
+                    "type": "Object Injection / Unsafe Deserialization",
+                    "description": "Utilisation de unserialize() sur des données contrôlées par l'utilisateur via cookie (base64_decode). Permet l'injection d'objets PHP arbitraires menant à l'exécution de code à distance (RCE) via des gadget chains.",
+                    "impact": "Exécution de code arbitraire sur le serveur (RCE), prise de contrôle totale du site, vol de données, installation de backdoors, pivot réseau.",
+                    "fix": "Remplacer par json_decode() avec validation stricte. Ne jamais désérialiser des données non fiables.\n\nCode correctif :\n$panier = json_decode(base64_decode($_COOKIE['pml_panier']), true);\nif (json_last_error() !== JSON_ERROR_NONE || !is_array($panier)) { return; }",
+                    "priority": 1,
+                    "order_of_fix": 1,
+                    "effort_hours": 0.5
+                },
+                {
+                    "id": "PML-002",
+                    "severity": "critique",
+                    "cvss_score": 9.1,
+                    "cvss_severity": "Critique",
+                    "location": "function pml_import_visuel, lines 371-378",
+                    "type": "SSRF (Server-Side Request Forgery) + Path Traversal",
+                    "description": "wp_remote_get() avec URL fournie par l'utilisateur sans validation (esc_url_raw ne protège pas contre SSRF). Écriture de fichier avec nom contrôlé par l'utilisateur ($_POST['nom']) permettant path traversal.",
+                    "impact": "Accès aux services internes (metadata cloud, bases de données, Redis, etc.), lecture de fichiers locaux (/etc/passwd, wp-config.php), écriture de fichiers arbitraires (webshell), contournement de pare-feu.",
+                    "fix": "Valider l'URL (liste blanche de domaines autorisés, bloquer IPs privées/localhost). Sanitizer le nom de fichier (basename, extension whitelist). Utiliser wp_upload_bits() au lieu de file_put_contents.\n\nCode correctif :\n$allowed_hosts = ['fournisseur-pizza.com', 'cdn.example.com'];\n$parsed = parse_url($url);\nif (!in_array($parsed['host'] ?? '', $allowed_hosts)) { wp_die('Domaine non autorisé'); }\n$nom = sanitize_file_name(basename($_POST['nom'] ?? 'visuel.jpg'));\n$upload = wp_upload_bits($nom, null, $contenu);",
+                    "priority": 2,
+                    "order_of_fix": 2,
+                    "effort_hours": 1.0
+                },
+                {
+                    "id": "PML-003",
+                    "severity": "critique",
+                    "cvss_score": 8.6,
+                    "cvss_severity": "Critique",
+                    "location": "function pml_rest_maj_prix, lines 223-231, 245-252",
+                    "type": "Missing Authorization / Broken Access Control",
+                    "description": "Endpoint REST /pml/v1/pizza/{id}/prix avec permission_callback => __return_true permet à n'importe qui (non authentifié) de modifier le prix de n'importe quelle pizza via POST.",
+                    "impact": "Modification des prix (gratuité, prix négatifs, prix exorbitants), perturbation commerciale, perte financière, atteinte à la réputation.",
+                    "fix": "Ajouter un permission_callback vérifiant les droits (ex: current_user_can('edit_posts') ou capability personnalisée). Vérifier le nonce REST.\n\nCode correctif :\n'permission_callback' => function() { return current_user_can('edit_posts'); }",
+                    "priority": 3,
+                    "order_of_fix": 3,
+                    "effort_hours": 0.25
+                },
+                {
+                    "id": "PML-004",
+                    "severity": "critique",
+                    "cvss_score": 8.6,
+                    "cvss_severity": "Critique",
+                    "location": "function pml_ajax_set_statut, lines 174-175, 177-192",
+                    "type": "Missing Authorization / Broken Access Control",
+                    "description": "Hook wp_ajax_nopriv_pml_set_statut expose l'AJAX aux utilisateurs non connectés. Permet de modifier le statut de n'importe quelle commande sans authentification ni vérification de propriété.",
+                    "impact": "Modification frauduleuse des statuts de commande (marquer comme livrée, annulée), perturbation opérationnelle, vol de service, fraude au remboursement.",
+                    "fix": "Supprimer wp_ajax_nopriv_ (réservé aux utilisateurs connectés). Ajouter check_ajax_referer et vérification de propriété de la commande (user_id correspond à l'utilisateur courant ou rôle admin).\n\nCode correctif :\n// Supprimer: add_action( 'wp_ajax_nopriv_pml_set_statut', ... )\n// Dans la fonction :\ncheck_ajax_referer('pml_admin', 'nonce');\n$commande = $wpdb->get_row($wpdb->prepare(\"SELECT user_id FROM {$wpdb->prefix}pml_commandes WHERE id = %d\", $id));\nif (!$commande || ($commande->user_id !== get_current_user_id() && !current_user_can('manage_options'))) { wp_send_json_error('Non autorisé', 403); }",
+                    "priority": 4,
+                    "order_of_fix": 4,
+                    "effort_hours": 0.5
+                },
+                {
+                    "id": "PML-005",
+                    "severity": "elevee",
+                    "cvss_score": 8.8,
+                    "cvss_severity": "Élevée",
+                    "location": "function pml_shortcode_menu, lines 104, 111-118",
+                    "type": "SQL Injection",
+                    "description": "Concaténation directe de $_GET['cat'] dans la requête SQL (ligne 116) sans préparation ni échappement. Le slug de terme est inséré directement dans la sous-requête.",
+                    "impact": "Extraction de données (toutes les tables), modification/suppression de données, élévation de privilèges, RCE possible via INTO OUTFILE ou chargement de plugin malveillant.",
+                    "fix": "Utiliser $wpdb->prepare() avec %s pour le slug. Ou mieux : utiliser get_term_by() et WP_Query.\n\nCode correctif :\nif ($cat !== '') {\n    $term = get_term_by('slug', sanitize_title($cat), 'pizza_categorie');\n    if ($term) {\n        $sql = $wpdb->prepare(\"SELECT p.ID, p.post_title FROM {$wpdb->posts} p WHERE p.post_type = 'pizza' AND p.post_status = 'publish' AND p.ID IN (SELECT tr.object_id FROM {$wpdb->term_relationships} tr INNER JOIN {$wpdb->term_taxonomy} tt ON tt.term_taxonomy_id = tr.term_taxonomy_id WHERE tt.term_id = %d) ORDER BY p.post_title ASC LIMIT %d\", $term->term_id, intval($atts['limite']));\n    }\n}",
+                    "priority": 5,
+                    "order_of_fix": 5,
+                    "effort_hours": 0.5
+                },
+                {
+                    "id": "PML-006",
+                    "severity": "elevee",
+                    "cvss_score": 8.8,
+                    "cvss_severity": "Élevée",
+                    "location": "function pml_ajax_search, lines 154-165",
+                    "type": "SQL Injection (Improper $wpdb->prepare usage)",
+                    "description": "Utilisation incorrecte de $wpdb->prepare() : sprintf() est appelé AVANT prepare(), donc $terme n'est pas échappé. La requête finale contient la valeur brute.",
+                    "impact": "Injection SQL dans la recherche, extraction de données, contournement d'authentification potentiel.",
+                    "fix": "Passer les paramètres à $wpdb->prepare() directement, sans sprintf().\n\nCode correctif :\n$sql = $wpdb->prepare(\"SELECT ID, post_title FROM {$wpdb->posts} WHERE post_type = 'pizza' AND post_status = 'publish' AND post_title LIKE %s LIMIT 10\", '%' . $wpdb->esc_like($terme) . '%');",
+                    "priority": 6,
+                    "order_of_fix": 6,
+                    "effort_hours": 0.25
+                },
+                {
+                    "id": "PML-007",
+                    "severity": "elevee",
+                    "cvss_score": 7.5,
+                    "cvss_severity": "Élevée",
+                    "location": "function pml_ecoute_webhook, line 398",
+                    "type": "Weak Token Comparison (Type Juggling)",
+                    "description": "Comparaison loose (==) entre token reçu et token stocké. PHP effectue une conversion de type qui peut permettre de contourner la vérification (ex: token '0' == '0e12345' interprété comme notation scientifique).",
+                    "impact": "Contournement de l'authentification du webhook, exécution d'actions non autorisées côté caisse enregistreuse, corruption des données de commande.",
+                    "fix": "Utiliser hash_equals() pour comparaison en temps constant, ou === après vérification de type.\n\nCode correctif :\nif (hash_equals((string)$token_valide, (string)$token_recu)) { ... }",
+                    "priority": 7,
+                    "order_of_fix": 7,
+                    "effort_hours": 0.25
+                },
+                {
+                    "id": "PML-008",
+                    "severity": "elevee",
+                    "cvss_score": 7.5,
+                    "cvss_severity": "Élevée",
+                    "location": "function pml_shortcode_suivi, lines 310-338",
+                    "type": "Information Disclosure / IDOR (Insecure Direct Object Reference)",
+                    "description": "Page de suivi de commande accessible via simple ID numérique dans l'URL (?commande=123) sans authentification ni token. Aucune vérification que le demandeur est le client concerné.",
+                    "impact": "Énumération de toutes les commandes, accès aux données PII (nom, téléphone, total, contenu panier), violation RGPD, vol d'informations clients.",
+                    "fix": "Ajouter un token unique par commande (déjà en base: colonne 'token'). Vérifier le token en paramètre URL au lieu de l'ID seul. Ou exiger authentification utilisateur.\n\nCode correctif :\n$token = isset($_GET['token']) ? sanitize_text_field($_GET['token']) : '';\n$commande = $wpdb->get_row($wpdb->prepare(\"SELECT * FROM {$wpdb->prefix}pml_commandes WHERE id = %d AND token = %s\", $id, $token));\nif (!$commande) { return '<p>Commande introuvable ou lien invalide.</p>'; }",
+                    "priority": 8,
+                    "order_of_fix": 8,
+                    "effort_hours": 0.5
+                },
+                {
+                    "id": "PML-009",
+                    "severity": "elevee",
+                    "cvss_score": 6.5,
+                    "cvss_severity": "Élevée",
+                    "location": "function pml_admin_menu, line 264",
+                    "type": "Excessive Capability / Privilege Escalation",
+                    "description": "La page d'admin utilise la capability 'edit_posts' (auteurs/contributeurs) au lieu de 'manage_options' (administrateurs). Permet à des utilisateurs à faibles privilèges d'accéder aux réglages et de modifier des options sensibles.",
+                    "impact": "Élévation de privilèges, modification de la devise, potentiellement d'autres options si ajoutées, actions d'admin non autorisées.",
+                    "fix": "Changer 'edit_posts' en 'manage_options' ou créer une capability dédiée.\n\nCode correctif :\nadd_menu_page('Pizza Manager', 'Pizza Manager', 'manage_options', 'pml-reglages', 'pml_render_reglages', 'dashicons-food');",
+                    "priority": 9,
+                    "order_of_fix": 9,
+                    "effort_hours": 0.1
+                },
+                {
+                    "id": "PML-010",
+                    "severity": "moyenne",
+                    "cvss_score": 6.1,
+                    "cvss_severity": "Moyenne",
+                    "location": "function pml_shortcode_menu, lines 133-134",
+                    "type": "Cross-Site Scripting (XSS) Stored",
+                    "description": "Les métadonnées _pml_ingredients et _pml_badge sont affichées sans échappement (ligne 133: $ingredients, ligne 134: $badge). Si un admin malveillant ou compromis injecte du JS, il s'exécute côté client.",
+                    "impact": "Vol de session admin, actions non autorisées au nom de l'admin, défiguration, redirection vers site malveillant, keylogging.",
+                    "fix": "Appliquer esc_html() ou wp_kses_post() selon le besoin.\n\nCode correctif :\n$out .= '<p class=\"pml-ing\">' . esc_html($ingredients) . '</p>';\n$out .= '<span class=\"pml-badge\">' . esc_html($badge) . '</span>';",
+                    "priority": 10,
+                    "order_of_fix": 10,
+                    "effort_hours": 0.1
+                },
+                {
+                    "id": "PML-011",
+                    "severity": "moyenne",
+                    "cvss_score": 6.5,
+                    "cvss_severity": "Moyenne",
+                    "location": "function pml_ajax_supprimer_pizza, lines 194-204",
+                    "type": "Missing Capability Check",
+                    "description": "Vérifie le nonce mais pas la capability de l'utilisateur. Tout utilisateur connecté avec un nonce valide (ex: auteur) peut supprimer n'importe quelle pizza.",
+                    "impact": "Suppression non autorisée de contenu, perte de données, déni de service partiel.",
+                    "fix": "Ajouter current_user_can('delete_posts') ou 'delete_pizza' avant wp_delete_post().\n\nCode correctif :\nif (!current_user_can('delete_post', $id)) { wp_send_json_error('Non autorisé', 403); }",
+                    "priority": 11,
+                    "order_of_fix": 11,
+                    "effort_hours": 0.1
+                },
+                {
+                    "id": "PML-012",
+                    "severity": "moyenne",
+                    "cvss_score": 7.1,
+                    "cvss_severity": "Moyenne",
+                    "location": "function pml_render_reglages, lines 273-280",
+                    "type": "Mass Assignment / Unrestricted Option Update",
+                    "description": "Boucle sur $_POST['pml_options'] sans liste blanche (allowlist). Permet de modifier n'importe quelle option WordPress (siteurl, home, users_can_register, default_role, etc.) via le formulaire.",
+                    "impact": "Prise de contrôle du site (users_can_register=1 + default_role=administrator), redirection du site, modification de configuration critique.",
+                    "fix": "Définir une liste blanche des options autorisées.\n\nCode correctif :\n$allowed_options = ['pml_devise', 'pml_webhook_token'];\nforeach ($_POST['pml_options'] as $cle => $valeur) {\n    if (in_array($cle, $allowed_options, true)) {\n        update_option($cle, sanitize_text_field($valeur));\n    }\n}",
+                    "priority": 12,
+                    "order_of_fix": 12,
+                    "effort_hours": 0.25
+                },
+                {
+                    "id": "PML-013",
+                    "severity": "moyenne",
+                    "cvss_score": 5.4,
+                    "cvss_severity": "Moyenne",
+                    "location": "function pml_import_visuel, line 365",
+                    "type": "Insufficient Capability Check",
+                    "description": "Vérifie seulement 'upload_files' (auteurs+) au lieu de 'manage_options' ou capability dédiée pour une fonction d'import sensible.",
+                    "impact": "Utilisateurs à faibles privilèges peuvent importer des fichiers, potentiellement combiné avec PML-002 pour upload de webshell.",
+                    "fix": "Changer en 'manage_options' ou capability personnalisée.\n\nCode correctif :\nif (!current_user_can('manage_options')) { wp_die('Accès refusé.'); }",
+                    "priority": 13,
+                    "order_of_fix": 13,
+                    "effort_hours": 0.1
+                },
+                {
+                    "id": "PML-014",
+                    "severity": "moyenne",
+                    "cvss_score": 5.3,
+                    "cvss_severity": "Moyenne",
+                    "location": "function pml_rest_liste, lines 212-221, 234-243",
+                    "type": "Information Disclosure / Excessive Data Exposure",
+                    "description": "Endpoint REST public (/pml/v1/pizzas) sans authentification expose tous les IDs et titres de pizzas. Pas critique mais fuite d'information inutile.",
+                    "impact": "Énumération du catalogue, reconnaissance, aide à l'attaque ciblée sur d'autres endpoints.",
+                    "fix": "Ajouter permission_callback avec current_user_can('read') minimum, ou implémenter une clé API pour la borne.\n\nCode correctif :\n'permission_callback' => function() { return current_user_can('read'); }",
+                    "priority": 14,
+                    "order_of_fix": 14,
+                    "effort_hours": 0.1
+                },
+                {
+                    "id": "PML-015",
+                    "severity": "faible",
+                    "cvss_score": 0.0,
+                    "cvss_severity": "Faible (Performance)",
+                    "location": "function pml_install, lines 33-45",
+                    "type": "Missing SQL Index / Performance",
+                    "description": "Table pml_commandes sans index sur les colonnes souvent filtrées : statut, created_at, token. Problème de performance à grande échelle.",
+                    "impact": "Requêtes lentes sur grosse base, déni de service par épuisement ressources, expérience utilisateur dégradée.",
+                    "fix": "Ajouter les index manquants dans le CREATE TABLE ou via ALTER TABLE.\n\nCode correctif :\nKEY statut (statut),\nKEY created_at (created_at),\nKEY token (token)",
+                    "priority": 15,
+                    "order_of_fix": 15,
+                    "effort_hours": 0.25
+                },
+                {
+                    "id": "PML-016",
+                    "severity": "faible",
+                    "cvss_score": 5.3,
+                    "cvss_severity": "Faible",
+                    "location": "function pml_ecoute_webhook, line 390-403",
+                    "type": "Webhook Endpoint Exposure / No Rate Limiting",
+                    "description": "Endpoint webhook accessible publiquement via ?pml_webhook=1 sans rate limiting, sans validation HMAC, token en GET (logs serveur).",
+                    "impact": "Attaque par force brute sur le token, déni de service, pollution des logs, replay attacks.",
+                    "fix": "Ajouter rate limiting, exiger token en header, valider HMAC/signature, journaliser les échecs.\n\nCode correctif :\n// Ajouter dans pml_ecoute_webhook :\n$ip = $_SERVER['REMOTE_ADDR'];\n$key = 'pml_webhook_ratelimit_' . $ip;\n$count = get_transient($key);\nif ($count > 60) { wp_send_json_error('Trop de requêtes', 429); }\nset_transient($key, $count + 1, 60);\n// Exiger header Authorization: Bearer <token>",
+                    "priority": 16,
+                    "order_of_fix": 16,
+                    "effort_hours": 0.5
+                }
+            ],
+            "cost_estimation": {
+                "total_hours": 6.15,
+                "half_days": 1.5,
+                "breakdown": {
+                    "critique_fixes": 2.25,
+                    "elevee_fixes": 1.6,
+                    "moyenne_fixes": 0.55,
+                    "faible_fixes": 0.75,
+                    "testing_validation": 1.0
+                },
+                "notes": "Estimation pour correction complète + tests. Les 4 critiques doivent être traités en priorité absolue (demi-journée 1 matin). Le reste peut être étalé sur 1.5 demi-journées."
+            },
+            "recommendations": [
+                "Corriger immédiatement PML-001 (unserialize) - RCE critique",
+                "Corriger PML-002 (SSRF + Path Traversal) - critique",
+                "Sécuriser les endpoints REST et AJAX (PML-003, PML-004)",
+                "Corriger les injections SQL (PML-005, PML-006)",
+                "Implémenter une liste blanche pour les options (PML-012)",
+                "Ajouter tokens sur le suivi commande (PML-008)",
+                "Mettre en place des tests de sécurité automatisés (SAST)",
+                "Configurer WAF pour bloquer attaques communes",
+                "Audit complet des autres plugins du site"
+            ]
+        };
+
+        // Initialisation
+        document.getElementById('audit-date').textContent = auditData.audit_date;
+        document.getElementById('total-issues').textContent = auditData.total_issues;
+        document.getElementById('gen-date').textContent = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+
+        // Résumé
+        const summaryEl = document.getElementById('summary');
+        const severityOrder = ['critique', 'elevee', 'moyenne', 'faible'];
+        const severityLabels = { critique: 'Critique', elevee: 'Élevée', moyenne: 'Moyenne', faible: 'Faible' };
+        const severityIcons = { critique: '🔴', elevee: '🟠', moyenne: '🟡', faible: '🟢' };
+        
+        severityOrder.forEach(sev => {
+            const count = auditData.summary[sev];
+            const card = document.createElement('div');
+            card.className = `stat-card ${sev}`;
+            card.innerHTML = `<div class="count">${count}</div><div class="label">${severityIcons[sev]} ${severityLabels[sev]}</div>`;
+            summaryEl.appendChild(card);
+        });
+
+        // Tableau
+        const tbody = document.getElementById('table-body');
+        
+        auditData.issues.forEach((issue) => {
+            // Ligne principale
+            const row = document.createElement('tr');
+            row.className = issue.severity;
+            row.dataset.id = issue.id;
+            row.dataset.severity = issue.severity;
+            row.dataset.search = `${issue.id} ${issue.type} ${issue.description} ${issue.location}`.toLowerCase();
+            row.innerHTML = `
+                <td><strong>#${issue.priority}</strong></td>
+                <td><span class="badge ${issue.severity}">${severityLabels[issue.severity]}</span></td>
+                <td><span class="code">${issue.cvss_score} — ${issue.cvss_severity}</span></td>
+                <td><span class="code">${issue.location}</span></td>
+                <td><strong>${issue.type}</strong></td>
+                <td>${issue.description.substring(0, 180)}…</td>
+                <td><button class="expand-btn" onclick="toggleDetails('${issue.id}')" aria-expanded="false" aria-controls="details-${issue.id}"><span class="icon">▼</span> Voir</button></td>
+            `;
+            tbody.appendChild(row);
+
+            // Ligne de détails
+            const detailRow = document.createElement('tr');
+            detailRow.className = `details-row ${issue.severity}`;
+            detailRow.id = `details-${issue.id}`;
+            detailRow.innerHTML = `
+                <td colspan="7">
+                    <div class="details-content">
+                        <div class="detail-section">
+                            <h4>Description complète</h4>
+                            <p>${issue.description}</p>
+                        </div>
+                        <div class="detail-section">
+                            <h4>Impact potentiel</h4>
+                            <p>${issue.impact}</p>
+                        </div>
+                        <div class="detail-section">
+                            <h4>Correctif recommandé</h4>
+                            <pre class="code-block">${escapeHtml(issue.fix)}</pre>
+                        </div>
+                        <div class="detail-meta">
+                            <span><strong>CVSS:</strong> ${issue.cvss_score} (${issue.cvss_severity})</span>
+                            <span><strong>Effort estimé:</strong> ${issue.effort_hours}h</span>
+                            <span><strong>Priorité:</strong> #${issue.priority}</span>
+                            <span><strong>Ordre de correction:</strong> #${issue.order_of_fix}</span>
+                        </div>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(detailRow);
+        });
+
+        // Estimation coûts
+        const costEl = document.getElementById('cost-grid');
+        const cost = auditData.cost_estimation;
+        const breakdown = cost.breakdown;
+        
+        const costItems = [
+            { label: 'Total heures', value: cost.total_hours + 'h' },
+            { label: 'Demi-journées', value: cost.half_days },
+            { label: 'Critiques', value: breakdown.critique_fixes + 'h' },
+            { label: 'Élevées', value: breakdown.elevee_fixes + 'h' },
+            { label: 'Moyennes', value: breakdown.moyenne_fixes + 'h' },
+            { label: 'Faibles', value: breakdown.faible_fixes + 'h' },
+            { label: 'Tests/Validation', value: breakdown.testing_validation + 'h' }
+        ];
+        
+        costItems.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'cost-item';
+            div.innerHTML = `<div class="value">${item.value}</div><div class="label">${item.label}</div>`;
+            costEl.appendChild(div);
+        });
+
+        // Recommandations
+        const recEl = document.getElementById('recommendations-list');
+        auditData.recommendations.forEach(rec => {
+            const li = document.createElement('li');
+            li.textContent = rec;
+            recEl.appendChild(li);
+        });
+
+        // Fonctions utilitaires
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function toggleDetails(id) {
+            const row = document.getElementById(`details-${id}`);
+            const btn = row.previousElementSibling.querySelector('.expand-btn');
+            const icon = btn.querySelector('.icon');
+            if (row.classList.contains('show')) {
+                row.classList.remove('show');
+                btn.setAttribute('aria-expanded', 'false');
+                icon.textContent = '▼';
+                btn.innerHTML = '<span class="icon">▼</span> Voir';
+            } else {
+                row.classList.add('show');
+                btn.setAttribute('aria-expanded', 'true');
+                icon.textContent = '▲';
+                btn.innerHTML = '<span class="icon">▲</span> Masquer';
+            }
+        }
+
+        function filterTable() {
+            const severity = document.getElementById('severity-filter').value;
+            const search = document.getElementById('search-filter').value.toLowerCase().trim();
+            
+            document.querySelectorAll('#table-body tr:not(.details-row)').forEach(row => {
+                const issueId = row.dataset.id;
+                const detailRow = document.getElementById(`details-${issueId}`);
+                const matchSeverity = !severity || row.dataset.severity === severity;
+                const matchSearch = !search || row.dataset.search.includes(search);
+                
+                if (matchSeverity && matchSearch) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                    detailRow.classList.remove('show');
+                    const btn = row.querySelector('.expand-btn');
+                    btn.setAttribute('aria-expanded', 'false');
+                    btn.innerHTML = '<span class="icon">▼</span> Voir';
+                }
+            });
+        }
+
+        function expandAll() {
+            document.querySelectorAll('.details-row').forEach(row => {
+                if (row.previousElementSibling.style.display !== 'none') {
+                    row.classList.add('show');
+                    const btn = row.previousElementSibling.querySelector('.expand-btn');
+                    btn.setAttribute('aria-expanded', 'true');
+                    btn.innerHTML = '<span class="icon">▲</span> Masquer';
+                }
+            });
+        }
+
+        function collapseAll() {
+            document.querySelectorAll('.details-row').forEach(row => {
+                row.classList.remove('show');
+                const btn = row.previousElementSibling.querySelector('.expand-btn');
+                btn.setAttribute('aria-expanded', 'false');
+                btn.innerHTML = '<span class="icon">▼</span> Voir';
+            });
+        }
+
+        function exportCSV() {
+            const headers = ['Priorité', 'ID', 'Criticité', 'CVSS', 'Sévérité CVSS', 'Localisation', 'Type', 'Description', 'Impact', 'Correctif', 'Effort (h)', 'Ordre correction'];
+            const rows = auditData.issues.map(issue => [
+                issue.priority,
+                issue.id,
+                severityLabels[issue.severity],
+                issue.cvss_score,
+                issue.cvss_severity,
+                issue.location,
+                issue.type,
+                issue.description.replace(/\n/g, ' ').replace(/,/g, ';'),
+                issue.impact.replace(/\n/g, ' ').replace(/,/g, ';'),
+                issue.fix.replace(/\n/g, ' ').replace(/,/g, ';'),
+                issue.effort_hours,
+                issue.order_of_fix
+            ]);
+            
+            let csv = headers.join(',') + '\n';
+            csv += rows.map(r => r.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
+            
+            const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `audit-pizza-manager-${auditData.audit_date}.csv`;
+            link.click();
+            URL.revokeObjectURL(link.href);
+        }
+
+        function exportPDF() {
+            // Création d'une fenêtre d'impression optimisée pour PDF
+            const printWindow = window.open('', '_blank');
+            const issuesHtml = auditData.issues.map(issue => `
+                <div class="pdf-issue" style="page-break-inside: avoid; margin-bottom: 20px; border-left: 4px solid ${getSeverityColor(issue.severity)}; padding-left: 15px;">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                        <h3 style="margin: 0; font-size: 1.1rem;">${issue.id} — ${issue.type}</h3>
+                        <span style="background: ${getSeverityColor(issue.severity)}; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: bold; text-transform: uppercase;">${severityLabels[issue.severity]}</span>
+                    </div>
+                    <div style="font-size: 0.85rem; color: #555; margin-bottom: 10px;">
+                        <strong>Priorité:</strong> #${issue.priority} | <strong>CVSS:</strong> ${issue.cvss_score} (${issue.cvss_severity}) | <strong>Effort:</strong> ${issue.effort_hours}h | <strong>Localisation:</strong> ${issue.location}
+                    </div>
+                    <div style="margin-bottom: 8px;"><strong>Description:</strong> ${issue.description}</div>
+                    <div style="margin-bottom: 8px;"><strong>Impact:</strong> ${issue.impact}</div>
+                    <div><strong>Correctif:</strong><pre style="background: #f4f4f4; padding: 10px; border-radius: 4px; font-size: 0.75rem; overflow-x: auto; white-space: pre-wrap;">${escapeHtml(issue.fix)}</pre></div>
+                </div>
+            `).join('');
+
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html lang="fr">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Rapport d'Audit - Pizza Manager Legacy</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; line-height: 1.5; color: #333; padding: 20px; max-width: 100%; }
+                        h1 { color: #1a1a2e; border-bottom: 2px solid #1a1a2e; padding-bottom: 10px; }
+                        h2 { color: #444; }
+                        .meta { color: #666; margin-bottom: 20px; }
+                        .summary { display: flex; gap: 15px; margin: 20px 0; flex-wrap: wrap; }
+                        .stat { background: #f5f5f5; padding: 10px 15px; border-radius: 4px; border-left: 4px solid; }
+                        .stat.critique { border-color: #dc3545; }
+                        .stat.elevee { border-color: #fd7e14; }
+                        .stat.moyenne { border-color: #ffc107; }
+                        .stat.faible { border-color: #28a745; }
+                        .cost { background: #e7f3ff; border: 1px solid #b3d7ff; border-radius: 8px; padding: 15px; margin: 20px 0; }
+                        @media print { body { padding: 0; } .pdf-issue { page-break-inside: avoid; } }
+                    </style>
+                </head>
+                <body>
+                    <h1>Rapport d'Audit Sécurité — Pizza Manager Legacy v${auditData.version}</h1>
+                    <p class="meta">Date: ${auditData.audit_date} | Fichier: pizza-manager-legacy.php | Total: ${auditData.total_issues} problèmes</p>
+                    <div class="summary">
+                        <div class="stat critique"><strong>${auditData.summary.critique}</strong> Critique</div>
+                        <div class="stat elevee"><strong>${auditData.summary.elevee}</strong> Élevée</div>
+                        <div class="stat moyenne"><strong>${auditData.summary.moyenne}</strong> Moyenne</div>
+                        <div class="stat faible"><strong>${auditData.summary.faible}</strong> Faible</div>
+                    </div>
+                    <div class="cost">
+                        <strong>Estimation:</strong> ${cost.total_hours}h (${cost.half_days} demi-journées) — Critiques: ${breakdown.critique_fixes}h, Élevées: ${breakdown.elevee_fixes}h, Moyennes: ${breakdown.moyenne_fixes}h, Faibles: ${breakdown.faible_fixes}h, Tests: ${breakdown.testing_validation}h
+                    </div>
+                    ${issuesHtml}
+                    <hr style="margin: 30px 0;">
+                    <h2>Recommandations prioritaires</h2>
+                    <ol>${auditData.recommendations.map(r => `<li>${r}</li>`).join('')}</ol>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.focus();
+            setTimeout(() => printWindow.print(), 500);
+        }
+
+        function getSeverityColor(sev) {
+            const colors = { critique: '#dc3545', elevee: '#fd7e14', moyenne: '#ffc107', faible: '#28a745' };
+            return colors[sev] || '#6c757d';
+        }
+
+        // Raccourcis clavier
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'e' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); exportCSV(); }
+            if (e.key === 'p' && (e.ctrlKey || e.metaKey) && e.shiftKey) { e.preventDefault(); exportPDF(); }
+        });
+    </script>
+</body>
+</html>
