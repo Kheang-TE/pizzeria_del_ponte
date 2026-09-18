@@ -4,4 +4,6 @@
 vendor/
 
 # Fichiers WordPress
-/wp-content/
+/wp-content/*
+!/wp-content/plugins/
+/wp-content/plugins/index.php
