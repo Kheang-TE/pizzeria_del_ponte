@@ -28,3 +28,8 @@ add_action('init', 'pizza_post_type');
 require_once 'includes/metabox/price.php';
 add_action('add_meta_boxes', 'pizza_price_metabox'); // Affichage de la metabox pour le prix
 add_action('save_post', 'pizza_save_price'); // Sauvegarde de la valeur du prix lors de l'enregistrement du post
+
+// Metabox pour la disponibilité
+require_once 'includes/metabox/available.php';
+add_action('add_meta_boxes', 'pizza_availability_metabox'); // Affichage de la metabox pour la disponibilité
+add_action('save_post', 'pizza_save_availability'); // Sauvegarde de la valeur de la disponibilité lors de l'enregistrement du post

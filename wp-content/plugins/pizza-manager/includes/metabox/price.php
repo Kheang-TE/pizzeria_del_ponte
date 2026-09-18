@@ -51,7 +51,7 @@ function pizza_save_price($post_id) {
             $price = sanitize_text_field($_POST['pizza_price']);
             update_post_meta($post_id, 'pizza_price', $price);
         } else {
-            // Si le prix n'est pas un nombre valide, on peut choisir de ne pas le sauvegarder ou de le mettre à zéro
+            // Si le prix n'est pas un nombre valide, on sauvegarde "0" par défaut
             update_post_meta($post_id, 'pizza_price', '0');
         }
     }
