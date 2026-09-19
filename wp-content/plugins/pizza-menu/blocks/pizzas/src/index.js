@@ -1,5 +1,7 @@
 import { registerBlockType } from '@wordpress/blocks';
 import { useBlockProps } from '@wordpress/block-editor';
+import './editor.scss';
+import './style.scss';
 
 registerBlockType('pizza-menu/pizzas', {
     

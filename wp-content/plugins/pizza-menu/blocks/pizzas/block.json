@@ -16,7 +16,8 @@
         }
     },
     "editorScript": "file:./build/index.js",
-    "editorStyle": "file:./src/editor.scss",
-    "style": "file:./src/style.scss",
+    "editorStyle": "file:./build/index.css",
+    "style": "file:./build/style-index.css",
+    "viewScript": "file:./src/script.js",
     "render": "file:./src/render.php"
 }

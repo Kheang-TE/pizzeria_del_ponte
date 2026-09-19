@@ -7,7 +7,8 @@ const GROUP_PAGE = 'pizza-menu-settings';
 const DEFAULT_SETTINGS = [
     'pizza_menu_presentation' => '',
     'pizza_menu_pizzas_per_page' => 10,
-    'pizza_menu_columns' => 3,
+    'pizza_menu_columns_default' => 3,
+    'pizza_menu_columns_max' => 4,
     'pizza_menu_order_by' => 'title',
     'pizza_menu_show_unavailable' => 'yes',
 ];
@@ -112,8 +113,8 @@ function pizza_settings_sections() {
         'pizza_menu_columns',
         __('Nombre de colonnes', 'pizza-menu'),
         function () {
-            $columns = get_option('pizza_menu_columns', DEFAULT_SETTINGS['pizza_menu_columns']);
-            echo '<input type="number" name="pizza_menu_columns" value="' . esc_attr($columns) . '" min="1" max="6" />';
+            $columns = get_option('pizza_menu_columns', DEFAULT_SETTINGS['pizza_menu_columns_default']);
+            echo '<input type="number" name="pizza_menu_columns" value="' . esc_attr($columns) . '" min="1" max="' . esc_attr(DEFAULT_SETTINGS['pizza_menu_columns_max']) . '" />';
         },
         GROUP_PAGE,
         'pizza_menu_settings_section'
