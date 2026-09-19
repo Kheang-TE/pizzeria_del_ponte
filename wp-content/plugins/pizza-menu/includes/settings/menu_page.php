@@ -8,6 +8,7 @@ const DEFAULT_SETTINGS = [
     'pizza_menu_presentation' => '',
     'pizza_menu_pizzas_per_page' => 10,
     'pizza_menu_columns' => 3,
+    'pizza_menu_order_by' => 'title',
     'pizza_menu_show_unavailable' => 'yes',
 ];
 
@@ -46,6 +47,7 @@ function pizza_settings_sections() {
     register_setting(GROUP_PAGE, 'pizza_menu_presentation');
     register_setting(GROUP_PAGE, 'pizza_menu_pizzas_per_page');
     register_setting(GROUP_PAGE, 'pizza_menu_columns');
+    register_setting(GROUP_PAGE, 'pizza_menu_order_by');
     register_setting(GROUP_PAGE, 'pizza_menu_show_unavailable');
 
     // Ajouter une section pour les paramètres d'affichage des pizzas
@@ -85,6 +87,20 @@ function pizza_settings_sections() {
         function () {
             $columns = get_option('pizza_menu_columns', DEFAULT_SETTINGS['pizza_menu_columns']);
             echo '<input type="number" name="pizza_menu_columns" value="' . esc_attr($columns) . '" min="1" max="6" />';
+        },
+        GROUP_PAGE,
+        'pizza_menu_settings_section'
+    );
+
+    add_settings_field(
+        'pizza_menu_order_by',
+        __('Trier les pizzas par', 'pizza-menu'),
+        function () {
+            $order_by = get_option('pizza_menu_order_by', DEFAULT_SETTINGS['pizza_menu_order_by']);
+            echo '<select name="pizza_menu_order_by">
+                    <option value="title" ' . selected($order_by, 'title', false) . '>Titre</option>
+                    <option value="price" ' . selected($order_by, 'price', false) . '>Prix</option>
+                  </select>';
         },
         GROUP_PAGE,
         'pizza_menu_settings_section'
