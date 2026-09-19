@@ -33,3 +33,11 @@ add_action('save_post', 'pizza_save_price'); // Sauvegarde de la valeur du prix 
 require_once 'includes/metabox/available.php';
 add_action('add_meta_boxes', 'pizza_availability_metabox'); // Affichage de la metabox pour la disponibilité
 add_action('save_post', 'pizza_save_availability'); // Sauvegarde de la valeur de la disponibilité lors de l'enregistrement du post
+
+// Taxonomy pour les catégories
+require_once 'includes/taxonomy/category.php';
+add_action('init', 'pizza_category_taxonomy');
+
+// Taxonomy pour les allergènes
+require_once 'includes/taxonomy/allergen.php';
+add_action('init', 'pizza_allergen_taxonomy');
