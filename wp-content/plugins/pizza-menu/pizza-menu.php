@@ -54,3 +54,9 @@ if(!function_exists('pizza_allergen_taxonomy') && file_exists(plugin_dir_path(__
     require_once 'includes/taxonomy/allergen.php';
     add_action('init', 'pizza_allergen_taxonomy');
 }
+
+if(!function_exists('pizza_menu_page') && file_exists(plugin_dir_path(__FILE__) . 'includes/settings/menu_page.php')) {
+    require_once 'includes/settings/menu_page.php';
+    add_action('admin_menu', 'pizza_menu_page');
+    add_action('admin_init', 'pizza_settings_sections');
+}
