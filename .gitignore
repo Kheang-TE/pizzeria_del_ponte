@@ -2,6 +2,7 @@
 .env
 .vscode/
 vendor/
+node_modules/
 
 # Fichiers WordPress
 /wp-content/*

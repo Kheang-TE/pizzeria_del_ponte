@@ -55,8 +55,15 @@ if(!function_exists('pizza_allergen_taxonomy') && file_exists(plugin_dir_path(__
     add_action('init', 'pizza_allergen_taxonomy');
 }
 
+// Page de menu dans le back-office pour les réglages du plugin
 if(!function_exists('pizza_menu_page') && file_exists(plugin_dir_path(__FILE__) . 'includes/settings/menu_page.php')) {
     require_once 'includes/settings/menu_page.php';
     add_action('admin_menu', 'pizza_menu_page');
     add_action('admin_init', 'pizza_settings_sections');
+}
+
+// Block Gutenberg pour afficher le menu des pizzas
+add_action('init', 'pizza_menu_register_blocks');
+function pizza_menu_register_blocks() {
+    register_block_type(plugin_dir_path(__FILE__) . 'blocks/pizzas');
 }

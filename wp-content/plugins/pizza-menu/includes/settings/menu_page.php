@@ -44,17 +44,44 @@ function pizza_menu_page_content() {
 // Ajouter les sections et les champs de paramètres
 function pizza_settings_sections() {
     // Enregistrer les paramètres pour la présentation du menu
-    register_setting(GROUP_PAGE, 'pizza_menu_presentation');
-    register_setting(GROUP_PAGE, 'pizza_menu_pizzas_per_page');
-    register_setting(GROUP_PAGE, 'pizza_menu_columns');
-    register_setting(GROUP_PAGE, 'pizza_menu_order_by');
-    register_setting(GROUP_PAGE, 'pizza_menu_show_unavailable');
+    register_setting(GROUP_PAGE, 'pizza_menu_presentation', [
+        'sanitize_callback' => 'wp_kses_post',
+        'default' => DEFAULT_SETTINGS['pizza_menu_presentation'],
+    ]);
+    register_setting(GROUP_PAGE, 'pizza_menu_pizzas_per_page', [
+        'sanitize_callback' => function ($value) {
+            return max(1, absint($value));
+        },
+        'default' => DEFAULT_SETTINGS['pizza_menu_pizzas_per_page'],
+    ]);
+    register_setting(GROUP_PAGE, 'pizza_menu_columns', [
+        'sanitize_callback' => function ($value) {
+            return min(6, max(1, absint($value)));
+        },
+        'default' => DEFAULT_SETTINGS['pizza_menu_columns'],
+    ]);
+    register_setting(GROUP_PAGE, 'pizza_menu_order_by', [
+        'sanitize_callback' => function ($value) {
+            return in_array($value, ['title', 'price'], true)
+                ? $value
+                : 'title';
+        },
+        'default' => DEFAULT_SETTINGS['pizza_menu_order_by'],
+    ]);
+    register_setting(GROUP_PAGE, 'pizza_menu_show_unavailable', [
+        'sanitize_callback' => function ($value) {
+            return $value === 'no' ? 'no' : 'yes';
+        },
+        'default' => DEFAULT_SETTINGS['pizza_menu_show_unavailable'],
+    ]);
 
     // Ajouter une section pour les paramètres d'affichage des pizzas
     add_settings_section(
         'pizza_menu_settings_section', // ID de la section
         __('Paramètres d\'affichage des pizzas', 'pizza-menu'), // Titre de la section
-        function () {}, // Fonction de rappel pour afficher le contenu de la section
+        function () { // Fonction de rappel pour afficher le contenu de la section
+            echo '<p>' . __('Un bloc Gutenberg est disponible pour afficher les pizzas selon les paramètres ci-dessous.', 'pizza-menu') . '</p>';
+        },
         GROUP_PAGE // Page sur laquelle la section sera affichée
     );
 
@@ -64,7 +91,7 @@ function pizza_settings_sections() {
         __('Texte de présentation', 'pizza-menu'), // Titre du champ
         function () { // Fonction de rappel pour afficher le champ
             $presentation = get_option('pizza_menu_presentation', DEFAULT_SETTINGS['pizza_menu_presentation']);
-            echo '<textarea name="pizza_menu_presentation" rows="5" style="width: 100%;">' . esc_textarea($presentation) . '</textarea>';
+            echo '<textarea name="pizza_menu_presentation" rows="5" style="width: 100%;">' . wp_kses_post($presentation) . '</textarea>';
         }, 
         GROUP_PAGE, // Page sur laquelle le champ sera affiché
         'pizza_menu_settings_section' // Section à laquelle le champ appartient

@@ -1,0 +1,22 @@
+{
+    "apiVersion": 3,
+    "name": "pizza-menu/pizzas",
+    "title": "Pizzas",
+    "description": "Affiche toutes les pizzas",
+    "category": "widgets",
+    "icon": "food",
+    "keywords": ["pizza", "menu"],
+    "textdomain": "pizza-menu",
+    "supports": {
+        "html": false,
+        "align": ["wide", "full"],
+        "spacing": {
+            "margin": true,
+            "padding": true
+        }
+    },
+    "editorScript": "file:./build/index.js",
+    "editorStyle": "file:./src/editor.scss",
+    "style": "file:./src/style.scss",
+    "render": "file:./src/render.php"
+}
