@@ -1,4 +1,7 @@
 <?php
+// Sécurité : Empêche l'accès direct au fichier
+defined('ABSPATH') || exit;
+
 /* Custom Post Type - Pizza */
 function pizza_post_type() {
     $labels = [

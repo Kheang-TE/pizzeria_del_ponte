@@ -1,4 +1,7 @@
 <?php
+// Sécurité : Empêche l'accès direct au fichier
+defined('ABSPATH') || exit;
+
 // Custom Taxonomy - Catégorie de pizza
 function pizza_category_taxonomy() {
     $labels = [

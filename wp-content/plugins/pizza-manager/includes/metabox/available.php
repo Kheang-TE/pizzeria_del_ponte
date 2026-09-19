@@ -1,4 +1,7 @@
 <?php
+// Sécurité : Empêche l'accès direct au fichier
+defined('ABSPATH') || exit;
+
 // Metabox pour la disponibilité de la pizza
 function pizza_availability_metabox() {
     add_meta_box(

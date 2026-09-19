@@ -1,4 +1,7 @@
 <?php
+// Sécurité : Empêche l'accès direct au fichier
+defined('ABSPATH') || exit;
+
 // Custom Taxonomy - Allergène
 function pizza_allergen_taxonomy() {
     $labels = [
