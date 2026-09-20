@@ -20,7 +20,7 @@
 		?>
 		<div class="company-info">
 			<div class="container">
-				<div class="row justify-content-md-center text-center">
+				<div class="row text-center">
 
 					<div class="col-12 col-md-4 py-5">
 						<h1><?= strtoupper(get_bloginfo('name')) ?></h1>

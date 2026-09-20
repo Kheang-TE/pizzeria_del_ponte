@@ -649,7 +649,7 @@ textarea {
 --------------------------------------------- */
 .main-navigation {
 	display: block;
-	width: 100%;
+	width: auto;
 }
 
 .main-navigation ul {
@@ -702,8 +702,30 @@ textarea {
 .main-navigation.toggled ul {
 	display: block;
 }
+.main-navigation.toggled ul{
+	position: absolute;
+	top: 100%;
+	left: 0;
+	width: 100%;
+	height: 210%;
+	padding: 0 1rem;
+	background-color: #d5d5d5;
+	text-align: center;
+}
+.main-navigation.toggled ul li{
+	margin: 0!important;
+	border-bottom: solid 1px #fff8ef;
+}
+.main-navigation.toggled ul li.btn-commander a{
+	color: #fff8ef;
+}
+.main-navigation.toggled ul li a{
+	color: #241a17;
+	padding: .5rem 0;
+}
 
-@media screen and (min-width: 37.5em) {
+/* Default value : 37.5em */
+@media screen and (min-width: 768px) {
 
 	.menu-toggle {
 		display: none;
@@ -712,6 +734,7 @@ textarea {
 	.main-navigation ul {
 		display: flex;
 	}
+
 }
 
 .site-main .comment-navigation,
