@@ -1,0 +1,59 @@
+ligne 33 - 45:
+ - criticité : moyenne
+ - nature : token non unique, mise à jour non enregistré
+ - impact : un utilisateur pourrait avoir le même token qu'un autre, manque d'information sur la transaction
+ - solution : UNIQUE KEY token (token) et ajouter updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+ligne 75 - 83:  je le ferai car c'est ultra rapide
+ - criticité : faible
+ - nature : l'utilisateur ne voit pas la catégorie
+ - impact : l'utilisateur ne pourra pas ajouter à son produit
+ - solution : ajouter show_in_rest' => true
+ 
+ligne 103 - 141: à faire
+ - criticité : critique
+ - nature : la catégorie récupéré par l'URL n'est pas nettoyé, ni vérifié et la requête non préparé
+ - impact : risque d'injection sql
+ - solution : wordpress a déjà un déjà son système de requête avec WP_Query
+ 
+ligne 175:
+ - criticité : élevée
+ - nature :n'importe qui a accès à la fonction depuis extérieur
+ - impact : n'importe qui pourrait changer le statut
+ - solution : retirer cette ligne et ajouter des vérifications dans la fonction
+ 
+ligne 229:
+ - criticité : élevée
+ - nature : n'importe qui a accès à la fonction depuis extérieur
+ - impact : n'importe qui peut modifier le prix
+ - solution : remplacer __return_true par une fonction accordant les droits nécessaire
+ligne 245 - 252:
+ - criticité : élevé
+ - nature : mise à jour du prix sans vérification au préalable
+ - impact : change ou crée le prix au hasard
+ - solution : vérifier si le prix existe, si le prix est bien un nombre nul ou positif
+ 
+ligne 264 :
+ - criticité : élevée / moyenne
+ - nature : mauvaise assignation de droit
+ - impact : tous les utilisateurs au droit d'édition peuvent modifier les informations de la page
+ - solution : remplacer edit_posts par manage_options
+
+ligne 346 - 356 : à faire
+ - criticité : élevée / moyenne
+ - nature : récupération et désérialisation direct d'un fichier provenant d'un utilisateur sans mesure de vérification
+ - impact : cookie pouvant être modifié par l'utilisateur donc falsifier son panier
+ - solution : chercher une solution plus robuste sans que l'utilisateur n'ait la possibilité de modifier son panier
+ 
+ligne 364 - 382 :
+ - criticité : moyenne
+ - nature : récupération de fichier sans contrôle
+ - impact : peut récupérer toutes sortes de fichiers et de n'importe quel poids
+ - solution : ajouter des vérifications afin d'avoir plus de contrôle sur le type de fichier télécharger (par exemple exclure les exécutables ou fichier compressé) et imposer une limite de poids au fichier
+ 
+ligne 390 - 404:
+ - criticité : moyenne
+ - nature : ligne 398,  "==" n'est pas une vérification strict
+ - impact :
+ - solution :
+ - observation : fonction qui parait assez simpliste pour l'usage de token

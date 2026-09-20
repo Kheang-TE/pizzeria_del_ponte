@@ -1,0 +1,77 @@
+:root {
+  --primary: #c62828;
+  --secondary: #2e7d32;
+  --light: #fff8ef;
+  --dark: #241a17;
+  --grey: #d5d5d5;
+}
+
+body {
+  background-color: var(--light);
+}
+
+header.site-header {
+  background-color: var(--primary);
+}
+header.site-header h1 {
+  margin: 0;
+}
+header.site-header a {
+  color: var(--light);
+  text-decoration: none;
+}
+header.site-header a:hover, header.site-header a:focus {
+  font-style: bold;
+}
+header nav#site-navigation ul li {
+  margin-right: 2rem;
+}
+header nav#site-navigation ul li.btn-commander {
+  background-color: var(--dark);
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+}
+header nav#site-navigation ul li.btn-commander:hover, header nav#site-navigation ul li.btn-commander:focus {
+  background-color: var(--secondary);
+}
+
+footer .company-info {
+  background-color: var(--dark);
+  color: var(--light);
+}
+footer .company-info h1, footer .company-info p, footer .company-info address {
+  margin: 0;
+}
+footer .company-info h1 {
+  margin-bottom: 0.5rem;
+}
+footer .site-copy {
+  background-color: var(--secondary);
+  color: var(--light);
+}
+
+.hero {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+.hero img {
+  width: 100%;
+}
+.hero .hero__text {
+  position: absolute;
+  color: #fff;
+  text-align: center;
+  width: 100%;
+  margin: 10rem auto;
+}
+.hero .hero__text h2 {
+  text-transform: uppercase;
+  font-style: bold;
+}
+.hero .hero__text p {
+  font-size: large;
+}
+
+/*# sourceMappingURL=main.css.map */

@@ -1,0 +1,17 @@
+{
+  "name": "pizzas",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "build": "wp-scripts build",
+    "start": "wp-scripts start"
+  },
+  "devDependencies": {
+    "@wordpress/scripts": "^35.0.0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
