@@ -4,13 +4,13 @@ ligne 33 - 45:
  - impact : un utilisateur pourrait avoir le même token qu'un autre, manque d'information sur la transaction
  - solution : UNIQUE KEY token (token) et ajouter updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-ligne 75 - 83:
+ligne 75 - 83:  je le ferai car c'est ultra rapide
  - criticité : faible
  - nature : l'utilisateur ne voit pas la catégorie
  - impact : l'utilisateur ne pourra pas ajouter à son produit
  - solution : ajouter show_in_rest' => true
  
-ligne 103 - 141:
+ligne 103 - 141: à faire
  - criticité : critique
  - nature : la catégorie récupéré par l'URL n'est pas nettoyé, ni vérifié et la requête non préparé
  - impact : risque d'injection sql
@@ -39,7 +39,7 @@ ligne 264 :
  - impact : tous les utilisateurs au droit d'édition peuvent modifier les informations de la page
  - solution : remplacer edit_posts par manage_options
 
-ligne 346 - 356 :
+ligne 346 - 356 : à faire
  - criticité : élevée / moyenne
  - nature : récupération et désérialisation direct d'un fichier provenant d'un utilisateur sans mesure de vérification
  - impact : cookie pouvant être modifié par l'utilisateur donc falsifier son panier
