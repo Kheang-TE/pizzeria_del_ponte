@@ -1,0 +1,33 @@
+// Variables Sass
+$red: #c62828;
+$green: #2e7d32;
+$cream: #fff8ef;
+$dark: #241a17;
+
+:root{
+    --primary: #{$red};
+    --secondary: #{$green};
+    --light: #{$cream};
+    --dark: #{$dark};
+}
+
+body{
+    background-color: var(--light);
+}
+
+footer{
+    .company-info{
+        background-color: var(--dark);
+        color: var(--light);
+        h1, p, address{
+            margin: 0;
+        }
+        h1{
+            margin-bottom: .5rem
+        }
+    }
+    .site-copy{
+        background-color: var(--secondary);
+        color: var(--light);
+    }
+}

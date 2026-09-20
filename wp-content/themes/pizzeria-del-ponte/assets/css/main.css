@@ -1,0 +1,27 @@
+:root {
+  --primary: #c62828;
+  --secondary: #2e7d32;
+  --light: #fff8ef;
+  --dark: #241a17;
+}
+
+body {
+  background-color: var(--light);
+}
+
+footer .company-info {
+  background-color: var(--dark);
+  color: var(--light);
+}
+footer .company-info h1, footer .company-info p, footer .company-info address {
+  margin: 0;
+}
+footer .company-info h1 {
+  margin-bottom: 0.5rem;
+}
+footer .site-copy {
+  background-color: var(--secondary);
+  color: var(--light);
+}
+
+/*# sourceMappingURL=main.css.map */

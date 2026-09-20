@@ -138,10 +138,13 @@ add_action( 'widgets_init', 'pizzeria_del_ponte_widgets_init' );
  * Enqueue scripts and styles.
  */
 function pizzeria_del_ponte_scripts() {
+	wp_enqueue_style( 'bootstrap', get_template_directory_uri() . '/vendor/twbs/bootstrap/dist/css/bootstrap.min.css', array(), '5.0.2' );
 	wp_enqueue_style( 'pizzeria-del-ponte-style', get_stylesheet_uri(), array(), _S_VERSION );
 	wp_style_add_data( 'pizzeria-del-ponte-style', 'rtl', 'replace' );
+	wp_enqueue_style( 'main', get_template_directory_uri().'/assets/css/main.css',array(), _S_VERSION);
 
-	wp_enqueue_script( 'pizzeria-del-ponte-navigation', get_template_directory_uri() . '/js/navigation.js', array(), _S_VERSION, true );
+	wp_enqueue_script( 'pizzeria-del-ponte-navigation', get_template_directory_uri() . '/assets/js/navigation.js', array(), _S_VERSION, true );
+	wp_enqueue_script( 'bootstrap', get_template_directory_uri() . '/vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js', array(), '5.0.2', true );
 
 	if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {
 		wp_enqueue_script( 'comment-reply' );
