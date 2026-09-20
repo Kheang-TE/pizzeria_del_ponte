@@ -20,22 +20,22 @@
 		?>
 		<div class="company-info">
 			<div class="container">
-				<div class="row text-center">
+				<div class="row justify-content-md-center text-center">
 
-					<div class="col py-5">
+					<div class="col-12 col-md-4 py-5">
 						<h1><?= strtoupper(get_bloginfo('name')) ?></h1>
 						<?php if($address){ echo '<address>'.esc_html($address).'</address>'; } ?>
 					</div>
 
 					<?php if($hourly): ?>
-						<div class="col py-5">
+						<div class="col-12 col-md-4 py-5">
 							<h2 class="text-uppercase">Horaires d'ouverture</h2>
 							<p><?= wp_kses_post($hourly); ?></p>
 						</div>
 					<?php endif; ?>
 
 					<?php if($phone): ?>
-						<div class="col py-5">
+						<div class="col-12 col-md-4 py-5">
 							<h2 class="text-uppercase">Nous joindre</h2>
 							<a href="tel:<?= str_replace(' ','',esc_attr($phone)) ?>"><?= esc_html($phone) ?></a>
 						</div>
