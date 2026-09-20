@@ -6,6 +6,11 @@ node_modules/
 
 # Fichiers WordPress
 /wp-content/*
+
 /wp-content/plugins/*
 !/wp-content/plugins/
 !/wp-content/plugins/pizza-menu
+
+/wp-content/themes/*
+!/wp-content/themes/
+!/wp-content/themes/twentytwentyfive-child
